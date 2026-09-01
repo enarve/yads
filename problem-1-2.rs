@@ -18,7 +18,7 @@ fn main() {
         .collect();
 
     // Finding problem solution
-    let result: Vec<i64> = get_result(values, n);
+    let result: Vec<i64> = get_result_faster(values, n);
 
     // Output
     let result_strings: Vec<String> = result.iter().map(|i| i.to_string()).collect();
@@ -27,7 +27,7 @@ fn main() {
 }
 
 // For each value get appropriate pair: smallest value with bigger index
-fn get_result(values: Vec<i64>, length: usize) -> Vec<i64> {
+fn _get_result(values: Vec<i64>, length: usize) -> Vec<i64> {
     assert!(values.len() == length);
     let mut result: Vec<i64> = vec![];
     for (i, a) in values.iter().enumerate() {
@@ -42,6 +42,45 @@ fn get_result(values: Vec<i64>, length: usize) -> Vec<i64> {
     }
     result
 }
+
+// Stack version
+fn get_result_faster(values: Vec<i64>, length: usize) -> Vec<i64> {
+    assert!(values.len() == length);
+    let mut result: Vec<i64> = vec![];
+    let mut stack: Stack<i64> = Stack::new();
+
+    for (i, value) in values.iter().enumerate() {
+        if stack.length() == 0 {
+            stack.push(*value);
+        } else {
+            if value > stack.last_element().unwrap() {
+                while stack.length() != 0 {
+                    stack.pop();
+                    result.push((i+1) as i64);
+                }
+                stack.push(*value);
+            } else {
+                stack.push(*value);
+            }
+        }
+    }
+    for _ in 0..stack.length() {
+        result.push(-1);
+    }
+    result
+}
+
+struct Stack<T> { items: Vec<T> }
+
+impl<T> Stack<T> {
+    fn new() -> Self { Self { items: vec![] } }
+    fn push(&mut self, item: T) { self.items.push(item); }
+    fn pop(&mut self) -> Option<T> { self.items.pop() }
+    fn last_element(&self) -> Option<&T> { self.items.last() }
+    fn length(&self) -> usize { self.items.len() }
+}
+
+// IO
 
 fn read_input() -> String {
     let input_path = path::Path::new("input/input-1-2.txt");
